@@ -19,10 +19,6 @@ export default {
 
     const pr = await request.json<Webhook>();
 
-    if (!pr) {
-      throw new Error("No message at index 0");
-    }
-
     const { data: diff } = await octokit.rest.pulls.get({
       ...REPO_INFO,
       pull_number: pr.number,
@@ -43,7 +39,7 @@ export default {
     const existingComment = comments.find(comment => comment.user?.login === BOT_USERNAME)
 
     if (existingComment?.body === body) {
-      return;
+      return new Response(`Success, but did nothing!`);
     }
 
     if (existingComment) {
