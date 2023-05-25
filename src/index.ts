@@ -17,9 +17,7 @@ export default {
 
     const octokit = new Octokit({ auth: env.GITHUB_TOKEN });
 
-    const { message } = await request.json<Webhook>();
-
-    const pr = message[0];
+    const pr = await request.json<Webhook>();
 
     if (!pr) {
       throw new Error("No message at index 0");

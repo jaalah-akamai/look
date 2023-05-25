@@ -1,10 +1,4 @@
 export interface Webhook {
-  message: Message[]
-  level: string
-  timestamp: number
-}
-
-export interface Message {
   action: string
   number: number
   pull_request: PullRequest
