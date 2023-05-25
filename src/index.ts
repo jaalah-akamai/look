@@ -42,6 +42,10 @@ export default {
 
     const existingComment = comments.find(comment => comment.user?.login === BOT_USERNAME)
 
+    if (existingComment?.body === body) {
+      return;
+    }
+
     if (existingComment) {
       await octokit.rest.issues.updateComment({
         ...REPO_INFO,
