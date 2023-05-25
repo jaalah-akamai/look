@@ -4,13 +4,15 @@
   "description": "Linode Manager Bot",
   "scripts": {
     "dev": "npx wrangler dev",
-    "publish": "npx wrangler publish",
-    "build": "bun build --minify --outdir=build src/index.ts"
+    "publish": "npx wrangler publish"
   },
   "author": "Banks Nussman",
   "devDependencies": {
     "@cloudflare/workers-types": "^3.14.1",
     "typescript": "^5.0.0",
     "wrangler": "^2.0.24"
+  },
+  "dependencies": {
+    "octokit": "^2.0.18"
   }
 }
