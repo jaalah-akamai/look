@@ -1,16 +1,16 @@
 {
-	"name": "look",
-	"version": "0.0.0",
-	"description": "Linode Manager Bot",
-	"scripts": {
-		"dev": "npx wrangler dev",
-		"publish": "npx wrangler publish",
+  "name": "look",
+  "version": "0.0.0",
+  "description": "Linode Manager Bot",
+  "scripts": {
+    "dev": "npx wrangler dev",
+    "publish": "npx wrangler publish",
     "build": "bun build --minify --outdir=build src/index.ts"
-	},
-	"author": "Banks Nussman",
-	"devDependencies": {
-		"@cloudflare/workers-types": "^3.14.1",
-		"typescript": "^5.0.0",
-		"wrangler": "^2.0.24"
-	}
+  },
+  "author": "Banks Nussman",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^3.14.1",
+    "typescript": "^5.0.0",
+    "wrangler": "^2.0.24"
+  }
 }
