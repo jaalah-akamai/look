@@ -19,6 +19,10 @@ export default {
 
     const pr = await request.json<Webhook>();
 
+    if (!['opened', 'edited', 'reopened', 'synchronize'].includes(pr.action)) {
+      return new Response(`Success, but did nothing!`);
+    }
+
     const { data: diff } = await octokit.rest.pulls.get({
       ...REPO_INFO,
       pull_number: pr.number,
