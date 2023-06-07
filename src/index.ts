@@ -23,6 +23,10 @@ export default {
       return new Response(`Success, but did nothing!`);
     }
 
+    if (pr.pull_request.draft) {
+      return new Response(`Doing nothing because PR is a draft`);
+    }
+
     const { data: diff } = await octokit.rest.pulls.get({
       ...REPO_INFO,
       pull_number: pr.number,
