@@ -48,11 +48,15 @@ export default {
       labelsToAdd.push("Ready for Review");
     }
 
-    await octokit.rest.issues.addLabels({
-      ...REPO_INFO,
-      issue_number: pr.number,
-      labels: labelsToAdd.filter(label => !pr.pull_request.labels.some(l => l.name === label))
-    });
+    const labels = labelsToAdd.filter(label => !pr.pull_request.labels.some(l => l.name === label))
+
+    if (labels.length > 0) {
+      await octokit.rest.issues.addLabels({
+        ...REPO_INFO,
+        issue_number: pr.number,
+        labels,
+      });
+    }
 
     for (const label of labelsToRemove) {
       // If the label isn't on the PR, there is no need to remove it
