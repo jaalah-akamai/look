@@ -29,15 +29,22 @@ export default {
       },
     });
 
-    const hasChangeset = Boolean((diff as unknown as string).includes(`pr-${pr.number}`));
-    const isApproved = pr.pull_request.state === "approved";
+    const { data: reviews } = await octokit.rest.pulls.listReviews({
+      ...REPO_INFO,
+      pull_number: pr.number,
+    });
 
-    console.log(pr.pull_request.state);
+    const hasChangeset = Boolean((diff as unknown as string).includes(`pr-${pr.number}`));
+    const isApproved = reviews.filter(r => r.state === "APPROVED").length >= 2;
+    const isAdditionalApprovalNeeded = reviews.filter(r => r.state === "APPROVED").length === 1;
+    const areChangesRequested = reviews.some(r => r.state === 'CHANGES_REQUESTED');
 
     const labelsToAdd = [];
     const labelsToRemove = [];
 
-    if (!hasChangeset) {
+    if (hasChangeset) {
+      labelsToRemove.push('Missing Changeset');
+    } else {
       labelsToAdd.push('Missing Changeset');
     }
 
@@ -48,6 +55,18 @@ export default {
     } else {
       labelsToRemove.push('Approved');
       labelsToAdd.push("Ready for Review");
+    }
+
+    if (isAdditionalApprovalNeeded) {
+      labelsToAdd.push("Add'tl Approval Needed");
+    } else {
+      labelsToRemove.push("Add'tl Approval Needed");
+    }
+
+    if (areChangesRequested) {
+      labelsToAdd.push("Requires Changes");
+    } else {
+      labelsToRemove.push("Requires Changes");
     }
 
     const labels = labelsToAdd.filter(label => !pr.pull_request.labels.some(l => l.name === label))
