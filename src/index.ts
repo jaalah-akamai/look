@@ -31,7 +31,7 @@ export default {
 
     const hasChangeset = Boolean((diff as unknown as string).includes(`pr-${pr.number}`));
 
-    if (hasChangeset) {
+    if (!hasChangeset) {
       await octokit.rest.issues.addLabels({
         ...REPO_INFO,
         issue_number: pr.number,
