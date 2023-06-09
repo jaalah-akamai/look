@@ -51,10 +51,11 @@ export default {
     await octokit.rest.issues.addLabels({
       ...REPO_INFO,
       issue_number: pr.number,
-      labels: labelsToAdd
+      labels: labelsToAdd.filter(label => !pr.pull_request.labels.some(l => l.name === label))
     });
 
     for (const label of labelsToRemove) {
+      // If the label isn't on the PR, there is no need to remove it
       if (!pr.pull_request.labels.find((l) => l.name === label)) {
         continue;
       }
