@@ -32,6 +32,8 @@ export default {
     const hasChangeset = Boolean((diff as unknown as string).includes(`pr-${pr.number}`));
     const isApproved = pr.pull_request.state === "approved";
 
+    console.log(pr.pull_request.state);
+
     const labelsToAdd = [];
     const labelsToRemove = [];
 
