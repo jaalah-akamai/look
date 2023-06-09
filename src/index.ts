@@ -1,4 +1,4 @@
-import { Webhook } from "./types";
+import { Label, Webhook } from "./types";
 import { Octokit } from "octokit";
 
 const REPO_INFO = {
@@ -55,6 +55,9 @@ export default {
     });
 
     for (const label of labelsToRemove) {
+      if (!pr.pull_request.labels.find((l) => l.name === label)) {
+        continue;
+      }
       await octokit.rest.issues.removeLabel({
         ...REPO_INFO,
         issue_number: pr.number,
