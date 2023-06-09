@@ -37,6 +37,7 @@ export default {
     const hasChangeset = Boolean((diff as unknown as string).includes(`pr-${pr.number}`));
     const isApproved = reviews.filter(r => r.state === "APPROVED").length >= 2;
     const isAdditionalApprovalNeeded = reviews.filter(r => r.state === "APPROVED").length === 1;
+    const isReadyForReview = !isApproved && !isAdditionalApprovalNeeded;
     const areChangesRequested = reviews.some(r => r.state === 'CHANGES_REQUESTED');
 
     const labelsToAdd = [];
@@ -50,11 +51,14 @@ export default {
 
     if (isApproved) {
       labelsToAdd.push("Approved");
-      labelsToRemove.push("Ready for Review");
-      labelsToRemove.push("Add'tl Approval Needed");
     } else {
       labelsToRemove.push('Approved');
+    }
+    
+    if (isReadyForReview) {
       labelsToAdd.push("Ready for Review");
+    } else {
+      labelsToRemove.push("Ready for Review");
     }
 
     if (isAdditionalApprovalNeeded) {
