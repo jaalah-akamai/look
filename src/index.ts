@@ -30,18 +30,35 @@ export default {
     });
 
     const hasChangeset = Boolean((diff as unknown as string).includes(`pr-${pr.number}`));
+    const isApproved = pr.pull_request.state === "approved";
+
+    const labelsToAdd = [];
+    const labelsToRemove = [];
 
     if (!hasChangeset) {
-      await octokit.rest.issues.addLabels({
-        ...REPO_INFO,
-        issue_number: pr.number,
-        labels: ['Missing Changeset']
-      });
+      labelsToAdd.push('Missing Changeset');
+    }
+
+    if (isApproved) {
+      labelsToAdd.push("Approved");
+      labelsToRemove.push("Ready for Review");
+      labelsToRemove.push("Add'tl Approval Needed");
     } else {
+      labelsToRemove.push('Approved');
+      labelsToAdd.push("Ready for Review");
+    }
+
+    await octokit.rest.issues.addLabels({
+      ...REPO_INFO,
+      issue_number: pr.number,
+      labels: labelsToAdd
+    });
+
+    for (const label of labelsToRemove) {
       await octokit.rest.issues.removeLabel({
         ...REPO_INFO,
         issue_number: pr.number,
-        name: 'Missing Changeset',
+        name: label,
       });
     }
 
