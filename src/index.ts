@@ -1,4 +1,4 @@
-import { Label, Webhook } from "./types";
+import { Webhook } from "./types";
 import { Octokit } from "octokit";
 
 const REPO_INFO = {
@@ -12,7 +12,6 @@ export interface Env {
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-
     const octokit = new Octokit({ auth: env.GITHUB_TOKEN });
 
     const pr = await request.json<Webhook>();
@@ -23,7 +22,7 @@ export default {
 
     const { data: diff } = await octokit.rest.pulls.get({
       ...REPO_INFO,
-      pull_number: pr.number,
+      pull_number: pr.pull_request.number,
       mediaType: {
         format: 'diff',
       },
@@ -31,10 +30,10 @@ export default {
 
     const { data: reviews } = await octokit.rest.pulls.listReviews({
       ...REPO_INFO,
-      pull_number: pr.number,
+      pull_number: pr.pull_request.number,
     });
 
-    const hasChangeset = Boolean((diff as unknown as string).includes(`pr-${pr.number}`));
+    const hasChangeset = Boolean((diff as unknown as string).includes(`pr-${pr.pull_request.number}`));
     const isApproved = reviews.filter(r => r.state === "APPROVED").length >= 2;
     const isAdditionalApprovalNeeded = reviews.filter(r => r.state === "APPROVED").length === 1;
     const isReadyForReview = !isApproved && !isAdditionalApprovalNeeded;
@@ -78,7 +77,7 @@ export default {
     if (labels.length > 0) {
       await octokit.rest.issues.addLabels({
         ...REPO_INFO,
-        issue_number: pr.number,
+        issue_number: pr.pull_request.number,
         labels,
       });
     }
@@ -90,7 +89,7 @@ export default {
       }
       await octokit.rest.issues.removeLabel({
         ...REPO_INFO,
-        issue_number: pr.number,
+        issue_number: pr.pull_request.number,
         name: label,
       });
     }
