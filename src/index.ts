@@ -45,7 +45,9 @@ export default {
     if (hasChangeset) {
       labelsToRemove.push('Missing Changeset');
     } else {
-      labelsToAdd.push('Missing Changeset');
+      if (pr.action === 'opened' || pr.action === 'reopened') {
+        labelsToAdd.push('Missing Changeset');
+      }
     }
 
     if (isApproved) {
