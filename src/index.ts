@@ -39,6 +39,11 @@ export default {
     const isReadyForReview = !isApproved && !isAdditionalApprovalNeeded;
     const areChangesRequested = reviews.some(r => r.state === 'CHANGES_REQUESTED');
 
+    const isStaging = pr.pull_request.base.ref === 'staging';
+    const isMaster = pr.pull_request.base.ref === 'master';
+    const isUpdate = pr.pull_request.base.ref === 'develop' && isMaster;
+    const isHotfix = pr.pull_request.title.toLowerCase().includes('hotfix')
+
     const labelsToAdd = [];
     const labelsToRemove = [];
 
@@ -50,12 +55,26 @@ export default {
       }
     }
 
+    if (isStaging) {
+      labelsToAdd.push("Release → Staging");
+    } else if (isMaster) {
+      labelsToAdd.push("Release");
+    } else if (isUpdate) {
+      labelsToAdd.push("Master → Develop");
+    }
+
+    if (isHotfix) {
+      labelsToAdd.push("Hotfix");
+    } else {
+      labelsToRemove.push("Hotfix");
+    }
+
     if (isApproved) {
       labelsToAdd.push("Approved");
     } else {
       labelsToRemove.push('Approved');
     }
-    
+
     if (isReadyForReview) {
       labelsToAdd.push("Ready for Review");
     } else {
