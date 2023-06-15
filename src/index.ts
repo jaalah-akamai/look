@@ -39,10 +39,6 @@ export default {
     const isReadyForReview = !isApproved && !isAdditionalApprovalNeeded;
     const areChangesRequested = reviews.some(r => r.state === 'CHANGES_REQUESTED');
 
-    const isStaging = /release\s*->\s*staging/i;
-    const isRelease = /staging\s*->\s*master/i;
-    const isUpdate = /master\s*->\s*develop/i;
-
     const labelsToAdd = [];
     const labelsToRemove = [];
 
@@ -54,11 +50,11 @@ export default {
       }
     }
 
-    if (pr.pull_request.title.match(isStaging)) {
+    if (pr.pull_request.base.ref === 'staging') {
       labelsToAdd.push("Release → Staging");
-    } else if (pr.pull_request.title.match(isRelease)) {
+    } else if (pr.pull_request.base.ref === 'master') {
       labelsToAdd.push("Release");
-    } else if (pr.pull_request.title.match(isUpdate)) {
+    } else if (pr.pull_request.base.ref === 'develop' && pr.pull_request.head.ref === 'master') {
       labelsToAdd.push("Master → Develop");
     }
 
