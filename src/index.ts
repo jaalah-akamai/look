@@ -42,10 +42,10 @@ export default {
     }
 
     const hasChangeset = Boolean((diff as unknown as string).includes(`pr-${pr.pull_request.number}`));
-    const isApproved = reviews.filter(r => r.state === "APPROVED").length >= 2;
-    const isAdditionalApprovalNeeded = reviews.filter(r => r.state === "APPROVED").length === 1;
+    const isApproved = activeReviews.filter(r => r.state === "APPROVED").length >= 2;
+    const isAdditionalApprovalNeeded = activeReviews.filter(r => r.state === "APPROVED").length === 1;
     const isReadyForReview = !isApproved && !isAdditionalApprovalNeeded;
-    const areChangesRequested = reviews.some(r => r.state === 'CHANGES_REQUESTED');
+    const areChangesRequested = activeReviews.some(r => r.state === 'CHANGES_REQUESTED');
 
     const isStaging = pr.pull_request.base.ref === 'staging';
     const isMaster = pr.pull_request.base.ref === 'master';
