@@ -116,11 +116,15 @@ export default {
       if (!pr.pull_request.labels.find((l) => l.name === label)) {
         continue;
       }
-      await octokit.rest.issues.removeLabel({
-        ...REPO_INFO,
-        issue_number: pr.pull_request.number,
-        name: label,
-      });
+      try {
+        await octokit.rest.issues.removeLabel({
+          ...REPO_INFO,
+          issue_number: pr.pull_request.number,
+          name: label,
+        });
+      } catch(error) {
+        console.error("Unable to delete label", label, "on PR", pr.pull_request.id, "with labels", pr.pull_request.labels);
+      }
     }
 
     return new Response(`Success`);
