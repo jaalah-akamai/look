@@ -33,6 +33,14 @@ export default {
       pull_number: pr.pull_request.number,
     });
 
+    const activeReviews: typeof reviews = [];
+
+    for (let i = reviews.length - 1; i >= 0; i++) {
+      if (!activeReviews.some(r => r.user.id === reviews[i].user.id)) {
+        activeReviews.push(reviews[i]);
+      }
+    }
+
     const hasChangeset = Boolean((diff as unknown as string).includes(`pr-${pr.pull_request.number}`));
     const isApproved = reviews.filter(r => r.state === "APPROVED").length >= 2;
     const isAdditionalApprovalNeeded = reviews.filter(r => r.state === "APPROVED").length === 1;
