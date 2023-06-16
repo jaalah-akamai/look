@@ -35,7 +35,7 @@ export default {
 
     const activeReviews: typeof reviews = [];
 
-    for (let i = reviews.length - 1; i >= 0; i++) {
+    for (let i = reviews.length - 1; i >= 0; i--) {
       if (!activeReviews.some(r => r.user.id === reviews[i].user.id)) {
         activeReviews.push(reviews[i]);
       }
