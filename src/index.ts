@@ -52,58 +52,101 @@ export default {
     const isUpdate = pr.pull_request.base.ref === 'develop' && isMaster;
     const isHotfix = pr.pull_request.title.toLowerCase().includes('hotfix')
 
-    const labelsToAdd = [];
-    const labelsToRemove = [];
+    // Labels
+    const missingChangesetLabel = 'Missing Changeset';
+    const stagingLabel = 'Release → Staging';
+    const releaseLabel = 'Release';
+    const masterDevelopLabel = 'Master → Develop';
+    const hotfixLabel = 'Hotfix';
+    const approvedLabel = 'Approved';
+    const readyForReviewLabel = 'Ready for Review';
+    const additionalApprovalLabel = "Add'tl Approval Needed";
+    const changesRequestedLabel = 'Requires Changes';
+
+    // Keep track of labels that have already been added so we don't add them again
+    const uniqueAddedLabels = new Set();
+
+    // Labels that should be added / removed from the PR
+    const labels = new Set();
 
     if (hasChangeset) {
-      labelsToRemove.push('Missing Changeset');
+      labels.delete(missingChangesetLabel);
     } else {
-      if (pr.action === 'opened' || pr.action === 'reopened') {
-        labelsToAdd.push('Missing Changeset');
+      if (
+        pr.action === 'opened' ||
+        (pr.action === 'reopened' &&
+          !uniqueAddedLabels.has(missingChangesetLabel))
+      ) {
+        uniqueAddedLabels.add(missingChangesetLabel);
+        labels.add(missingChangesetLabel);
       }
     }
 
     if (isStaging) {
-      labelsToAdd.push("Release → Staging");
+      if (!uniqueAddedLabels.has(stagingLabel)) {
+        uniqueAddedLabels.add(stagingLabel);
+        labels.add(stagingLabel);
+      }
     } else if (isMaster) {
-      labelsToAdd.push("Release");
+      if (!uniqueAddedLabels.has(releaseLabel)) {
+        uniqueAddedLabels.add(releaseLabel);
+        labels.add(releaseLabel);
+      }
     } else if (isUpdate) {
-      labelsToAdd.push("Master → Develop");
+      if (!uniqueAddedLabels.has(masterDevelopLabel)) {
+        uniqueAddedLabels.add(masterDevelopLabel);
+        labels.add(masterDevelopLabel);
+      }
     }
 
     if (isHotfix) {
-      labelsToAdd.push("Hotfix");
+      if (!uniqueAddedLabels.has(hotfixLabel)) {
+        uniqueAddedLabels.add(hotfixLabel);
+        labels.add(hotfixLabel);
+      }
     } else {
-      labelsToRemove.push("Hotfix");
+      labels.delete(hotfixLabel);
     }
 
     if (isApproved) {
-      labelsToAdd.push("Approved");
+      if (!uniqueAddedLabels.has(approvedLabel)) {
+        uniqueAddedLabels.add(approvedLabel);
+        labels.add(approvedLabel);
+      }
     } else {
-      labelsToRemove.push('Approved');
+      labels.delete(approvedLabel);
     }
 
     if (isReadyForReview) {
-      labelsToAdd.push("Ready for Review");
+      if (!uniqueAddedLabels.has(readyForReviewLabel)) {
+        uniqueAddedLabels.add(readyForReviewLabel);
+        labels.add(readyForReviewLabel);
+      }
     } else {
-      labelsToRemove.push("Ready for Review");
+      labels.delete(readyForReviewLabel);
     }
 
     if (isAdditionalApprovalNeeded) {
-      labelsToAdd.push("Add'tl Approval Needed");
+      if (!uniqueAddedLabels.has(additionalApprovalLabel)) {
+        uniqueAddedLabels.add(additionalApprovalLabel);
+        labels.add(additionalApprovalLabel);
+      }
     } else {
-      labelsToRemove.push("Add'tl Approval Needed");
+      labels.delete(additionalApprovalLabel);
     }
 
     if (areChangesRequested) {
-      labelsToAdd.push("Requires Changes");
+      if (!uniqueAddedLabels.has(changesRequestedLabel)) {
+        uniqueAddedLabels.add(changesRequestedLabel);
+        labels.add(changesRequestedLabel);
+      }
     } else {
-      labelsToRemove.push("Requires Changes");
+      labels.delete(changesRequestedLabel);
     }
 
-    const labels = labelsToAdd.filter(label => !pr.pull_request.labels.some(l => l.name === label))
+    const filteredLabels = Array.from(labels).filter(label => !pr.pull_request.labels.some(l => l.name === label))
 
-    if (labels.length > 0) {
+    if (filteredLabels.length > 0) {
       await octokit.rest.issues.addLabels({
         ...REPO_INFO,
         issue_number: pr.pull_request.number,
@@ -111,7 +154,7 @@ export default {
       });
     }
 
-    for (const label of labelsToRemove) {
+    for (const label of labels) {
       // If the label isn't on the PR, there is no need to remove it
       if (!pr.pull_request.labels.find((l) => l.name === label)) {
         continue;
