@@ -154,7 +154,7 @@ export default {
       });
     }
 
-    for (const label of labels) {
+    for (const label of filteredLabels) {
       // If the label isn't on the PR, there is no need to remove it
       if (!pr.pull_request.labels.find((l) => l.name === label)) {
         continue;
