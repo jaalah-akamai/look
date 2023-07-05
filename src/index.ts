@@ -150,7 +150,7 @@ export default {
       await octokit.rest.issues.addLabels({
         ...REPO_INFO,
         issue_number: pr.pull_request.number,
-        labels,
+        filteredLabels,
       });
     }
 
@@ -163,7 +163,7 @@ export default {
         await octokit.rest.issues.removeLabel({
           ...REPO_INFO,
           issue_number: pr.pull_request.number,
-          name: label,
+          name: label as string,
         });
       } catch(error) {
         console.error("Unable to delete label", label, "on PR", pr.pull_request.id, "with labels", pr.pull_request.labels);
